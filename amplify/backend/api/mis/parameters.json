@@ -1,0 +1,11 @@
+{
+  "AppSyncApiName": "mis",
+  "DynamoDBBillingMode": "PROVISIONED",
+  "DynamoDBEnableServerSideEncryption": false,
+  "AuthCognitoUserPoolId": {
+    "Fn::GetAtt": [
+      "authmis14f38bd0",
+      "Outputs.UserPoolId"
+    ]
+  }
+}

@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<iflink>
+    <language name="jp">
+        <device name="Mobility IoT simulator" icon="logo.png" dataitem="mobilink" key="devicename" value="virtualcarDevice" category="mobilink">
+            <if>
+                <condition name="エアコン/風量がしきい値を上回ったら" icon="logo.png" key="dataname" value="acBlowerLevel" interface="Android">
+                    <property name="判断" datatype="int" type="hidden" key="compare" value="ge"/>
+                    <property name="状態" datatype="int" type="single-slider" key="value" default="3" min="0" max="5"/>
+                </condition>
+                <condition name="エアコン/風量がしきい値を下回ったら" icon="logo.png" key="dataname" value="acBlowerLevel" interface="Android">
+                    <property name="判断" datatype="int" type="hidden" key="compare" value="le"/>
+                    <property name="状態" datatype="int" type="single-slider" key="value" default="3" min="0" max="5"/>
+                </condition>
+                <condition name="エアコン/風量が設定範囲になったら" icon="logo.png" key="dataname" value="acBlowerLevel" interface="Android">
+                    <property name="判断" datatype="int" type="hidden" key="compare" value="between"/>
+                    <property name="状態" datatype="int" type="slider" key="value" default="3" min="0" max="5"/>
+                </condition>
+                <condition name="エアコン/設定温度がしきい値を上回ったら" icon="logo.png" key="dataname" value="acDriverSettingTemp" interface="Android">
+                    <property name="判断" datatype="int" type="hidden" key="compare" value="ge"/>
+                    <property name="状態" datatype="float" type="single-slider" key="value" default="25" min="-40" max="50"/>
+                </condition>
+                <condition name="エアコン/設定温度がしきい値を下回ったら" icon="logo.png" key="dataname" value="acDriverSettingTemp" interface="Android">
+                    <property name="判断" datatype="int" type="hidden" key="compare" value="le"/>
+                    <property name="状態" datatype="float" type="single-slider" key="value" default="25" min="-40" max="50"/>
+                </condition>
+                <condition name="エアコン/設定温度が設定範囲になったら" icon="logo.png" key="dataname" value="acDriverSettingTemp" interface="Android">
+                    <property name="判断" datatype="int" type="hidden" key="compare" value="between"/>
+                    <property name="状態" datatype="float" type="slider" key="value" default="25" min="-40" max="50"/>
+                </condition>
+                <condition name="車内温度がしきい値を上回ったら" icon="logo.png" key="dataname" value="insideTemp" interface="Android">
+                    <property name="判断" datatype="int" type="hidden" key="compare" value="ge"/>
+                    <property name="状態" datatype="float" type="single-slider" key="value" default="25" min="-40" max="50"/>
+                </condition>
+                <condition name="車内温度がしきい値を下回ったら" icon="logo.png" key="dataname" value="insideTemp" interface="Android">
+                    <property name="判断" datatype="int" type="hidden" key="compare" value="le"/>
+                    <property name="状態" datatype="float" type="single-slider" key="value" default="25" min="-40" max="50"/>
+                </condition>
+                <condition name="車内温度が設定範囲になったら" icon="logo.png" key="dataname" value="insideTemp" interface="Android">
+                    <property name="判断" datatype="int" type="hidden" key="compare" value="between"/>
+                    <property name="状態" datatype="float" type="slider" key="value" default="25" min="-40" max="50"/>
+                </condition>
+                <condition name="車外温度がしきい値を上回ったら" icon="logo.png" key="dataname" value="outsideTemp" interface="Android">
+                    <property name="判断" datatype="int" type="hidden" key="compare" value="ge"/>
+                    <property name="状態" datatype="float" type="single-slider" key="value" default="25" min="-40" max="50"/>
+                </condition>
+                <condition name="車外温度がしきい値を下回ったら" icon="logo.png" key="dataname" value="outsideTemp" interface="Android">
+                    <property name="判断" datatype="int" type="hidden" key="compare" value="le"/>
+                    <property name="状態" datatype="float" type="single-slider" key="value" default="25" min="-40" max="50"/>
+                </condition>
+                <condition name="車外温度が設定範囲になったら" icon="logo.png" key="dataname" value="outsideTemp" interface="Android">
+                    <property name="判断" datatype="int" type="hidden" key="compare" value="between"/>
+                    <property name="状態" datatype="float" type="slider" key="value" default="25" min="-40" max="50"/>
+                </condition>
+                <condition name="車速がしきい値を上回ったら" icon="logo.png" key="dataname" value="vehicleSpeed" interface="Android">
+                    <property name="判断" datatype="int" type="hidden" key="compare" value="ge"/>
+                    <property name="状態" datatype="float" type="single-slider" key="value" default="40" min="0" max="120"/>
+                </condition>
+                <condition name="車速がしきい値を下回ったら" icon="logo.png" key="dataname" value="vehicleSpeed" interface="Android">
+                    <property name="判断" datatype="int" type="hidden" key="compare" value="le"/>
+                    <property name="状態" datatype="float" type="single-slider" key="value" default="40" min="0" max="120"/>
+                </condition>
+                <condition name="車速が設定範囲になったら" icon="logo.png" key="dataname" value="vehicleSpeed" interface="Android">
+                    <property name="判断" datatype="int" type="hidden" key="compare" value="between"/>
+                    <property name="状態" datatype="float" type="slider" key="value" default="40" min="0" max="120"/>
+                </condition>
+                <condition name="エンジンが条件を満たすと" icon="logo.png" key="dataname" value="ignitionStatus" interface="Android">
+                    <property name="判断" datatype="int" type="hidden" key="compare" value="equal"/>
+                    <property name="状態" datatype="string" type="radio" key="value" option="OFF,ACC,ON" value="0,1,2" default="40" min="0" max="120"/>
+                </condition>
+                <condition name="右前側ドアが開閉すると" icon="logo.png" key="dataname" value="doorRightFrontStatusOpen" interface="Android">
+                    <property name="判断" datatype="int" type="hidden" key="compare" value="equal"/>
+                    <property name="状態" datatype="int" type="radio" key="value" default="0" option="閉じる,開ける" value="0,1" />
+                </condition>
+                <condition name="左前側ドアが開閉すると" icon="logo.png" key="dataname" value="doorPassengerFrontStatusOpen" interface="Android">
+                    <property name="判断" datatype="int" type="hidden" key="compare" value="equal"/>
+                    <property name="状態" datatype="int" type="radio" key="value" default="0" option="閉じる,開ける" value="0,1" />
+                </condition>
+                <condition name="右後側ドアが開閉すると" icon="logo.png" key="dataname" value="doorRightRearStatusOpen" interface="Android">
+                    <property name="判断" datatype="int" type="hidden" key="compare" value="equal"/>
+                    <property name="状態" datatype="int" type="radio" key="value" default="0" option="閉じる,開ける" value="0,1" />
+                </condition>
+                <condition name="左後側ドアが開閉すると" icon="logo.png" key="dataname" value="doorPassengerRearStatusOpen" interface="Android">
+                    <property name="判断" datatype="int" type="hidden" key="compare" value="equal"/>
+                    <property name="状態" datatype="int" type="radio" key="value" default="0" option="閉じる,開ける" value="0,1" />
+                </condition>
+                <condition name="バックドアが開閉すると" icon="logo.png" key="dataname" value="doorTrunkStatusOpen" interface="Android">
+                    <property name="判断" datatype="int" type="hidden" key="compare" value="equal"/>
+                    <property name="状態" datatype="int" type="radio" key="value" default="0" option="閉じる,開ける" value="0,1" />
+                </condition>
+                <condition name="右前側ドアの施錠を変更すると" icon="logo.png" key="dataname" value="doorRightFrontStatusLock" interface="Android">
+                    <property name="判断" datatype="int" type="hidden" key="compare" value="equal"/>
+                    <property name="状態" datatype="int" type="radio" key="value" default="0" option="施錠,解錠" value="0,1" />
+                </condition>
+                <condition name="左前側ドアの施錠を変更すると" icon="logo.png" key="dataname" value="doorPassengerFrontStatusLock" interface="Android">
+                    <property name="判断" datatype="int" type="hidden" key="compare" value="equal"/>
+                    <property name="状態" datatype="int" type="radio" key="value" default="0" option="施錠,解錠" value="0,1" />
+                </condition>
+                <condition name="右後側ドアの施錠を変更すると" icon="logo.png" key="dataname" value="doorRightRearStatusLock" interface="Android">
+                    <property name="判断" datatype="int" type="hidden" key="compare" value="equal"/>
+                    <property name="状態" datatype="int" type="radio" key="value" default="0" option="施錠,解錠" value="0,1" />
+                </condition>
+                <condition name="左後側ドアの施錠を変更すると" icon="logo.png" key="dataname" value="doorPassengerRearStatusLock" interface="Android">
+                    <property name="判断" datatype="int" type="hidden" key="compare" value="equal"/>
+                    <property name="状態" datatype="int" type="radio" key="value" default="0" option="施錠,解錠" value="0,1" />
+                </condition>
+                <condition name="バックドアの施錠を変更すると" icon="logo.png" key="dataname" value="doorTrunkStatusLock" interface="Android">
+                    <property name="判断" datatype="int" type="hidden" key="compare" value="equal"/>
+                    <property name="状態" datatype="int" type="radio" key="value" default="0" option="閉じる,開ける" value="0,1" />
+                </condition>
+                <condition name="右前側のセンサーがしきい値より大きくなると" icon="logo.png" key="dataname" value="customSensorRightFrontLevel" interface="Android">
+                    <property name="判断" datatype="int" type="hidden" key="compare" value="ge"/>
+                    <property name="状態" datatype="int" type="single-slider" key="value" default="3" min="0" max="5"/>
+                </condition>
+                <condition name="左前側のセンサーがしきい値より大きくなると" icon="logo.png" key="dataname" value="customSensorPassengerFrontLevel" interface="Android">
+                    <property name="判断" datatype="int" type="hidden" key="compare" value="ge"/>
+                    <property name="状態" datatype="int" type="single-slider" key="value" default="3" min="0" max="5"/>
+                </condition>
+                <condition name="右後側のセンサーがしきい値より大きくなると" icon="logo.png" key="dataname" value="customSensorDriverRearLevel" interface="Android">
+                    <property name="判断" datatype="int" type="hidden" key="compare" value="ge"/>
+                    <property name="状態" datatype="int" type="single-slider" key="value" default="3" min="0" max="5"/>
+                </condition>
+                <condition name="左後側のセンサーがしきい値より大きくなると" icon="logo.png" key="dataname" value="customSensorPassengerRearLevel" interface="Android">
+                    <property name="判断" datatype="int" type="hidden" key="compare" value="ge"/>
+                    <property name="状態" datatype="int" type="single-slider" key="value" default="3" min="0" max="5"/>
+                </condition>
+                <condition name="目的地まであと○mの地点まで近づくと" icon="logo.png" key="dataname" value="geofence" interface="Android">
+                    <property name="判断" datatype="int" type="hidden" key="compare" value="le"/>
+                    <property name="しきい値" datatype="int" type="single-slider" key="value" default="100" unit="m" min="100" max="100000"/>
+                </condition>
+            </if>
+            <then>
+                <condition name="ダッシュボード/エアコンを操作する" icon="logo.png" key="control" value="dashboard.ac" interface="Android">
+                    <property name="A/C" datatype="int" type="select" key="hazardLampOperation.flag" default="0" option="変更しない,変更する" value="0,1" />
+                    <property name=" " datatype="int" type="select" key="heaterStatusOperation" default="0" option="OFF,ON" value="0,1" />
+                    <property name="デフォッガー" datatype="int" type="select" key="defoggerFrontStatusOperation.flag" default="0" option="変更しない,変更する" value="0,1" />
+                    <property name=" " datatype="int" type="select" key="defoggerFrontStatusOperation" default="0" option="OFF,ON" value="0,1" />
+                    <property name="内気/外気" datatype="int" type="select" key="airRecirculationStatusOperation.flag" default="0" option="変更しない,変更する" value="0,1" />
+                    <property name=" " datatype="int" type="select" key="airRecirculationStatusOperation" default="0" option="内気,外気" value="0,1" />
+                    <property name="エアコン/自動モード" datatype="int" type="select" key="acBlowerMode.flag" default="0" option="変更しない,変更する" value="0,1" />
+                    <property name=" " datatype="int" type="select" key="acBlowerMode" default="0" option="OFF,ON" value="0,1" />
+                </condition>
+                <condition name="ダッシュボード/オーディオを操作する" icon="logo.png" key="control" value="dashboard/audio" interface="Android">
+                    <property name="オーディオ音量" datatype="int" type="select" key="customAudioVol.flag" default="0" option="変更しない,変更する" value="0,1" />
+                    <property name=" " datatype="int" type="single-slider" key="customAudioVol" default="5" min="0" max="9" />
+                    <property name="オーディオモード" datatype="int" type="select" key="customAudioMode.flag" default="0" option="変更しない,変更する" value="0,1" />
+                    <property name=" " datatype="int" type="select" key="customAudioMode" default="0" option="OFF,ON" value="0,1" />
+                    <property name="音楽再生状態" datatype="int" type="select" key="customMusicStatus.flag" default="0" option="変更しない,変更する" value="0,1" />
+                    <property name=" " datatype="int" type="select" key="customMusicStatus" default="0" option="OFF,ON" value="0,1" />
+                    <property name="AMチャンネル" datatype="int" type="select" key="customAmRadioChannel.flag" default="0" option="変更しない,変更する" value="0,1" />
+                    <property name=" " datatype="float" type="single-slider" key="customAmRadioChannel" default="899.0" min="526.5" max="1605.5" />
+                    <property name="FMチャンネル" datatype="int" type="select" key="customFmRadioChannel.flag" default="0" option="変更しない,変更する" value="0,1" />
+                    <property name=" " datatype="float" type="single-slider" key="customFmRadioChannel" default="89.9" min="76" max="90" />
+                </condition>
+                <condition name="コックピットを操作する" icon="logo.png" key="control" value="cockpit" interface="Android">
+                    <property name="車速" datatype="int" type="select" key="vehicleSpeed.flag" default="0" option="変更しない,変更する" value="0,1" />
+                    <property name=" " datatype="float" type="slider" key="vehicleSpeed" default="40" min="0" max="120" />
+                    <property name="ハザード" datatype="int" type="select" key="hazardLampOperationState.flag" default="0" option="変更しない,変更する" value="0,1" />
+                    <property name=" " datatype="int" type="select" key="hazardLampOperationState" default="0" option="消灯させる,点灯させる" value="0,1" />
+                    <property name="クラクション" datatype="int" type="select" key="hornStatusSound.flag" default="0" option="変更しない,変更する" value="0,1" />
+                    <property name=" " datatype="int" type="select" key="hornStatusSound" default="0" option="鳴らさない,鳴らす" value="0,1" />
+                    <property name="エンジン" datatype="int" type="select" key="ignitionStatus.flag" default="0" option="変更しない,変更する" value="0,1" />
+                    <property name=" " datatype="int" type="select" key="ignitionStatus" default="0" option="OFF,ACC,ON" value="0,1,2" />
+                    <property name="ワイパー" datatype="int" type="select" key="wiperFrontControlSetting.flag" default="0" option="変更しない,変更する" value="0,1" />
+                    <property name=" " datatype="int" type="select" key="wiperFrontControlSetting" default="0" option="OFF,SLOW,FAST" value="0,1,2" />
+                </condition>
+                <condition name="ドアとライトを操作する" icon="logo.png" key="control" value="doorlight" interface="Android">
+                    <property name="ドア開閉" datatype="int" type="select" key="doorStatusOpen.flag" default="0" option="変更しない,変更する" value="0,1" />
+                    <property name=" " datatype="string" type="checkbox" key="doorStatusOpen.target" default="0" option="右前側ドア,左前側ドア,右後側ドア,左後側ドア,バックドア" value="rightFront,leftFront,rightRear,leftRear,trunk" />
+                    <property name=" " datatype="int" type="select" key="doorStatusOpen" default="0" option="閉じる,開ける" value="0,1" />
+                    <property name="ドア解錠/施錠" datatype="int" type="select" key="doorStatusLock.flag" default="0" option="変更しない,変更する" value="0,1" />
+                    <property name=" " datatype="string" type="checkbox" key="doorStatusLock.target" default="0" option="右前側ドア,左前側ドア,右後側ドア,左後側ドア,バックドア" value="rightFront,leftFront,rightRear,leftRear,trunk" />
+                    <property name=" " datatype="int" type="select" key="doorStatusLock" default="0" option="解錠,施錠" value="0,1" />
+                    <property name="ヘッドライト" datatype="int" type="select" key="lightHeadStatusLighting.flag" default="0" option="変更しない,変更する" value="0,1" />
+                    <property name=" " datatype="int" type="select" key="lightHeadStatusLighting" default="0" option="OFF,LOW,HIGH" value="0,1,2" />
+                </condition>
+                <condition name="ナビを操作する" icon="logo.png" key="control" value="location" interface="Android">
+                    <property name="目的地を設定する" datatype="int" type="select" key="destination" default="0" option="変更しない,変更する" value="0,1" />
+                    <property name="ドア開閉" datatype="int" type="gps-text" key="destination.flag" default="0" option="変更しない,変更する" value="0,1" />
+                </condition>
+            </then>
+        </device>
+    </language>
+</iflink>

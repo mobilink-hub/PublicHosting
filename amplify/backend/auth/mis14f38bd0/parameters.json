@@ -1,0 +1,38 @@
+{
+  "identityPoolName": "mis14f38bd0_identitypool_14f38bd0",
+  "allowUnauthenticatedIdentities": false,
+  "resourceNameTruncated": "mis14f38bd0",
+  "userPoolName": "mis14f38bd0_userpool_14f38bd0",
+  "autoVerifiedAttributes": ["email"],
+  "mfaConfiguration": "OFF",
+  "mfaTypes": ["SMS Text Message"],
+  "smsAuthenticationMessage": "Your authentication code is {####}",
+  "smsVerificationMessage": "Your verification code is {####}",
+  "emailVerificationSubject": "Mobility IoT simulator アカウント発行完了",
+  "emailVerificationMessage": "Mobility IoT simulatorのご利用申請頂きありがとうございます。<br />下記の通り、仮パスワードをご連絡致します。<br />{####}<br />下記URLにアクセス頂き、サインインしてご利用下さい。<br />https://app.mobilink-iot.com/<br />ツールの使い方はヘルプをご覧ください。<br />※このメールは送信専用メールアドレスから配信されております。<br />このままご返信頂いてもお答えできませんのでご了承下さい。<br />※本メールにお心当たりのない方は、恐れ入りますがメールの破棄をお願い致します。",
+  "defaultPasswordPolicy": false,
+  "passwordPolicyMinLength": 8,
+  "passwordPolicyCharacters": [],
+  "requiredAttributes": ["email"],
+  "userpoolClientGenerateSecret": true,
+  "userpoolClientRefreshTokenValidity": 30,
+  "userpoolClientWriteAttributes": ["email"],
+  "userpoolClientReadAttributes": ["email"],
+  "userpoolClientLambdaRole": "mis14f14f38bd0_userpoolclient_lambda_role",
+  "userpoolClientSetAttributes": false,
+  "sharedId": "14f38bd0",
+  "resourceName": "mis14f38bd0",
+  "authSelections": "identityPoolAndUserPool",
+  "authRoleArn": {
+    "Fn::GetAtt": ["AuthRole", "Arn"]
+  },
+  "unauthRoleArn": {
+    "Fn::GetAtt": ["UnauthRole", "Arn"]
+  },
+  "useDefault": "default",
+  "usernameAttributes": ["email"],
+  "userPoolGroupList": [],
+  "serviceName": "Cognito",
+  "usernameCaseSensitive": false,
+  "dependsOn": []
+}

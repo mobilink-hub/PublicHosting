@@ -1,0 +1,26 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <EditTextPreference
+        android:key="@string/pref_virtualcardevice_settings_username_key"
+        android:selectAllOnFocus="true"
+        app:useSimpleSummaryProvider="true"
+        android:summary="@string/pref_virtualcardevice_settings_username_summary"
+        android:title="@string/pref_virtualcardevice_settings_username_name"
+        />
+    <EditTextPreference
+        android:key="@string/pref_virtualcardevice_settings_password_key"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:summary="@string/pref_virtualcardevice_settings_password_summary"
+        android:title="@string/pref_virtualcardevice_settings_password_name"
+        android:inputType="textPassword"
+        />
+    <EditTextPreference
+        android:key="@string/pref_virtualcardevice_settings_vehicle_id_key"
+        android:selectAllOnFocus="true"
+        app:useSimpleSummaryProvider="true"
+        android:summary="@string/pref_virtualcardevice_settings_vehicle_id_summary"
+        android:title="@string/pref_virtualcardevice_settings_vehicle_id_name"
+        />
+</PreferenceScreen>

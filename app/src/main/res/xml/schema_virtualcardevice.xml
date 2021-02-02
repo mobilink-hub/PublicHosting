@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<schema name="virtualcardevice">
+    <property
+        name="devicename"
+        type="string" />
+    <property
+        name="deviceserial"
+        type="string" />
+    <property
+        name="timestamp"
+        type="timestamp" />
+    <!-- デバイス固有設定 Sample Start -->
+    <property
+        name="virtualcar"
+        type="int" />
+    <!-- デバイス固有設定 Sample End -->
+    <!-- FYI: パラメータ追加時の変更箇所②-->
+    <property name="dummy" type="int" />
+    <property name="vehicleSpeed" type="float" />
+    <property name="hornStatusSound" type="int" />
+    <property name="acBlowerMode" type="int" />
+    <property name="brakePressure" type="float" />
+    <property name="acceleratorPedalOpening" type="float" />
+    <property name="wiperFrontControlSetting" type="int" />
+    <property name="ignitionStatus" type="int" />
+    <property name="acBlowerLevel" type="int" />
+    <property name="steeringWheelAngle" type="float" />
+    <property name="airRecirculationStatusOperation" type="int" />
+    <property name="acDriverSettingTemp" type="float" />
+    <property name="insideTemp" type="float" />
+    <property name="outsideTemp" type="float" />
+    <property name="defoggerFrontStatusOperation" type="int" />
+    <property name="transmissionGearPosition" type="int" />
+    <property name="heaterStatusOperation" type="int" />
+    <property name="customAmRadioChannel" type="float" />
+    <property name="customFmRadioChannel" type="float" />
+    <property name="customAudioVol" type="int" />
+    <property name="customAudioMode" type="int" />
+    <property name="customMusicStatus" type="int" />
+    <property name="doorRightFrontStatusOpen" type="int" />
+    <property name="doorLeftFrontStatusOpen" type="int" />
+    <property name="doorRightRearStatusOpen" type="int" />
+    <property name="doorLeftRearStatusOpen" type="int" />
+    <property name="doorTrunkStatusOpen" type="int" />
+    <property name="doorRightFrontStatusLock" type="int" />
+    <property name="doorLeftFrontStatusLock" type="int" />
+    <property name="doorRightRearStatusLock" type="int" />
+    <property name="doorLeftRearStatusLock" type="int" />
+    <property name="doorTrunkStatusLock" type="int" />
+    <property name="hazardLampOperationState" type="int" />
+    <property name="lightHighBeamStatusLighting" type="int" />
+    <property name="lightHeadStatusLighting" type="int" />
+    <property name="turnSignalStatusOperation" type="int" />
+    <property name="lampBreakStatusLighting" type="int" />
+    <property name="naviDestMeasuringLat" type="float" />
+    <property name="naviDestMeasuringLon" type="float" />
+    <property name="gpsStatusMeasuringLon" type="float" />
+    <property name="gpsStatusMeasuringLat" type="float" />
+    <property name="customSeatRightFrontOccupantType" type="int" />
+    <property name="customSeatRightRearOccupantType" type="int" />
+    <property name="customSeatLeftFrontOccupantType" type="int" />
+    <property name="customSeatLeftRearOccupantType" type="int" />
+    <property name="fuelRemainingPercent" type="int" />
+    <property name="customSensorRightFrontLevel" type="int" />
+    <property name="customSensorRightRearLevel" type="int" />
+    <property name="customSensorLeftFrontLevel" type="int" />
+    <property name="customSensorLeftRearLevel" type="int" />
+    <property name="timestamp" type="String" />
+</schema>
