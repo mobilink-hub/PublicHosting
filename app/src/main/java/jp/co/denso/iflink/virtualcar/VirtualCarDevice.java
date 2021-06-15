@@ -210,6 +210,8 @@ public class VirtualCarDevice extends DeviceConnector {
                 + IfLinkConnector.EPA_COOKIE_KEY_ADDRESS + "=" + IfLinkConnector.EPA_COOKIE_VALUE_ANY;
 
         mAssetName = "VIRTUALCARDEVICE_EPA";
+        Log.d("Test", String.valueOf(isAmplifyReady));
+        isAmplifyReady = true;
 
         // サンプル用：ここでデバイスを登録します。
         // 基本は、デバイスとの接続確立後、デバイスの対応したシリアル番号に更新してからデバイスを登録してください。
@@ -252,7 +254,7 @@ public class VirtualCarDevice extends DeviceConnector {
 
         // 設定した車両ID以外はreturn
         if(!vehicle.getId().equals(username+":"+vehicleId)){return;}
-        else{showToast(username+":"+vehicleId + "is updated");}
+        else{showToast(username+":"+vehicleId + " is updated");}
         for(String param: ifTaskList.keySet()){
             switch(param) {
                 case "vehicleSpeed":
@@ -615,7 +617,7 @@ public class VirtualCarDevice extends DeviceConnector {
                     break;
             }
         }
-        pushData();
+        //pushData();
         oldVehicle = vehicle.copyOfBuilder().build();
     }
     @Override
@@ -907,7 +909,7 @@ public class VirtualCarDevice extends DeviceConnector {
 
 
 
-        return false;
+        return true;
     }
 
     //If Sample start
@@ -953,7 +955,10 @@ public class VirtualCarDevice extends DeviceConnector {
         }
         Log.d(TAG,"queueData:"+dataname+":"+String.valueOf(val)+":"+type);
         addData(new EPAdata(dataname,type,String.valueOf(val)));
-    }
+
+        Log.d(TAG,"pushData");
+        notifyRecvData();
+}
 
 
     @Override
@@ -1024,7 +1029,7 @@ public class VirtualCarDevice extends DeviceConnector {
 
     @Override
     public final boolean checkPathConnection() {
-        Log.d(TAG, "checkPathConnection");
+        //Log.d(TAG, "checkPathConnection");
         // デバイスとの接続経路(WiFi, BLE, and so on・・・)が有効かをチェックする処理を記述してください。
         // insert check routine for custom connection path
         return true;
@@ -1039,7 +1044,7 @@ public class VirtualCarDevice extends DeviceConnector {
 
     @Override
     public final boolean checkDeviceConnection() {
-        Log.d(TAG, "checkDeviceConnection");
+        //Log.d(TAG, "checkDeviceConnection");
         // デバイスとの接続が維持されているかをチェックする処理を記述してください。
         return true;
     }
@@ -1053,7 +1058,7 @@ public class VirtualCarDevice extends DeviceConnector {
 
     @Override
     public final boolean checkDeviceAlive() {
-        Log.d(TAG, "checkDeviceAlive");
+        //Log.d(TAG, "checkDeviceAlive");
         // デバイスから定期的にデータ受信が出来ているかをチェックする処理を記述してください。
         return true;
     }
