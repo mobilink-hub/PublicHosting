@@ -210,8 +210,6 @@ public class VirtualCarDevice extends DeviceConnector {
                 + IfLinkConnector.EPA_COOKIE_KEY_ADDRESS + "=" + IfLinkConnector.EPA_COOKIE_VALUE_ANY;
 
         mAssetName = "VIRTUALCARDEVICE_EPA";
-        Log.d("Test", String.valueOf(isAmplifyReady));
-        isAmplifyReady = true;
 
         // サンプル用：ここでデバイスを登録します。
         // 基本は、デバイスとの接続確立後、デバイスの対応したシリアル番号に更新してからデバイスを登録してください。
@@ -225,6 +223,7 @@ public class VirtualCarDevice extends DeviceConnector {
         Log.d(TAG,"taskUpdateSubscribe");
         Amplify.API.query(ModelQuery.get(Vehicle.class,username+":"+vehicleId),
                 response->{
+                    Log.d(TAG, "oldVehicle");
                     oldVehicle = response.getData().copyOfBuilder().build();
                 },
                 error->{}
@@ -235,7 +234,10 @@ public class VirtualCarDevice extends DeviceConnector {
                     Log.d(TAG, "onEstablished:" + onEstablished.toString());
                     showToast("Connection Established");
                 },
-                onUpdated -> onVehicleUpdated(onUpdated.getData()),
+                onUpdated -> {
+                    Log.d(TAG, "onUpdate");
+                    onVehicleUpdated(onUpdated.getData());
+                },
                 onFailure -> {
                     Log.d(TAG, "onFailure");
                     showToast("Failed to subscribe");
@@ -633,8 +635,7 @@ public class VirtualCarDevice extends DeviceConnector {
     public boolean onStopDevice() {
         Log.d(TAG, "onStopDevice");
         if(subscribe != null)subscribe.cancel();
-        // デバイスからのデータ送信停止処理を記述してください。
-
+//        // デバイスからのデータ送信停止処理を記述してください。
         // 送信停止が別途完了通知を受ける場合には、falseを返してください。
         return true;
     }
@@ -907,8 +908,6 @@ public class VirtualCarDevice extends DeviceConnector {
         );
 
 
-
-
         return true;
     }
 
@@ -977,28 +976,30 @@ public class VirtualCarDevice extends DeviceConnector {
         }
 
     }
-    private void login(String username,String password){
-        Log.d(TAG,"login with '"+ username+"':'"+vehicleId+"'");
-            Amplify.Auth.signIn(
-                    username,
-                    password,
-                    result -> {
-                        String text = result.isSignInComplete() ? "Sign in succeeded with '" + username + "'" : "Sign in not complete with '" + username + "'";
-                        Log.i(TAG, text);
-                        showToast(text);
-                        if (subscribe != null) subscribe.cancel();
-                        taskSubscribe();
-                    },
-                    error -> {
-                        Log.i(TAG, error.toString());
-                        Context ctx = mIms.getApplicationContext();
-                        showToast("Sign in failed with '" + username + "'" + " on "+vehicleId);
-                    }
-            );
-        }
+
+    private void login(String username,String password) {
+        Log.d(TAG, "login with '" + username + "':'" + vehicleId + "'");
+        Amplify.Auth.signIn(
+                username,
+                password,
+                result -> {
+                    String text = result.isSignInComplete() ? "Sign in succeeded with '" + username + "'" : "Sign in not complete with '" + username + "'";
+                    Log.i(TAG, text);
+                    showToast(text);
+                    if (subscribe != null) subscribe.cancel();
+                    taskSubscribe();
+                },
+                error -> {
+                    Log.i(TAG, error.toString());
+                    Context ctx = mIms.getApplicationContext();
+                    showToast("Sign in failed with '" + username + "'" + " on " + vehicleId);
+                }
+        );
+    }
+
     @Override
     protected void onUpdateConfig(@NonNull IfLinkSettings settings) throws IfLinkAlertException {
-        Log.d(TAG, "onUpdateConfig"+isAmplifyReady);
+        Log.d(TAG, "onUpdateConfig");
         showToast("onUpdateConfig");
         // 設定パラメータを更新する処理を記述してください。
         String usernameKey = mIms.getString(R.string.pref_virtualcardevice_settings_username_key);
@@ -1012,6 +1013,9 @@ public class VirtualCarDevice extends DeviceConnector {
                 showToast("config profile at 環境設定 > VirtualCar IMS 設定メニュー");
             }
             else login(username,password);
+        }
+        if(username.equals("") || password.equals("") || vehicleId.equals("")){
+            showToast("config profile at 環境設定 > VirtualCar IMS 設定メニュー");
         }
     }
 
