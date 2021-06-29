@@ -213,6 +213,9 @@ public class VirtualCarDevice extends DeviceConnector {
 
         // サンプル用：ここでデバイスを登録します。
         // 基本は、デバイスとの接続確立後、デバイスの対応したシリアル番号に更新してからデバイスを登録してください。
+
+        //initializeしないことがあるので現状回避させている
+        isAmplifyReady = true;
         // onUpdateConfigが呼ばれる
         addDevice();
         // 基本は、デバイスとの接続が確立した時点で呼び出します。
