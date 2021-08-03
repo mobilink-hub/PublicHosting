@@ -7,13 +7,13 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ims_3rd"
+        android:icon="@mipmap/ic_launcher_cutecar"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ims_3rd_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".VirtualCarDeviceSettingsActivity"
+            android:name="jp.co.denso.iflink.virtualcar.VirtualCarDeviceSettingsActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/config_virtualcardevice_name"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
@@ -25,7 +25,7 @@
         <activity android:name="jp.co.toshiba.iflink.ui.PermissionActivity" />
 
         <service
-            android:name=".VirtualCarIms"
+            android:name="jp.co.denso.iflink.virtualcar.VirtualCarIms"
             android:enabled="true"
             android:exported="true"
             android:process=":VirtualCarIms">

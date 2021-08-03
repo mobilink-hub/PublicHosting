@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 
 import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
 
 import android.widget.Toast;
 
@@ -170,8 +169,9 @@ public class VirtualCarDevice extends DeviceConnector {
             put("customSensorLeftFrontLevel", "int");
             put("customSensorLeftRearLevel", "int");
             put("geofence", "int");
-            put("doorStatusOpen","");
-            put("doorStatusLock","");
+            put("doorStatusOpen", "");
+            put("doorStatusLock", "");
+            put("doorStatus", "");
         }
     };
     private ApiOperation subscribe;
@@ -195,7 +195,7 @@ public class VirtualCarDevice extends DeviceConnector {
         } catch (AmplifyException failure) {
             Log.e(TAG, "Could not initialize Amplify", failure);
         }
-        mDeviceName = "virtualcarDevice";
+        mDeviceName = BuildConfig.APPLICATION_ID + ":virtualcarDevice:" + BuildConfig.VERSION_CODE;
         mDeviceSerial = "epa";
         mSchemaName = "virtualcardevice";
         setSchema();
@@ -213,6 +213,9 @@ public class VirtualCarDevice extends DeviceConnector {
 
         // サンプル用：ここでデバイスを登録します。
         // 基本は、デバイスとの接続確立後、デバイスの対応したシリアル番号に更新してからデバイスを登録してください。
+
+        //initializeしないことがあるので現状回避させている
+        isAmplifyReady = true;
         // onUpdateConfigが呼ばれる
         addDevice();
         // 基本は、デバイスとの接続が確立した時点で呼び出します。
@@ -256,7 +259,7 @@ public class VirtualCarDevice extends DeviceConnector {
 
         // 設定した車両ID以外はreturn
         if(!vehicle.getId().equals(username+":"+vehicleId)){return;}
-        else{showToast(username+":"+vehicleId + " is updated");}
+//        else{showToast(username+":"+vehicleId + " is updated"); }
         for(String param: ifTaskList.keySet()){
             switch(param) {
                 case "vehicleSpeed":
@@ -653,6 +656,20 @@ public class VirtualCarDevice extends DeviceConnector {
                 }
                 //
                 else{
+                    Log.d(TAG, param);
+                    if (param.equals("doorStatus")) {
+                        Log.d(TAG, param);
+                        switch (map.get(param+".flag").toString()) {
+                            case "1":
+                            case "2":
+                                param = "doorStatusOpen";
+                                break;
+                            case "3":
+                            case "4":
+                                param = "doorStatusLock";
+                                break;
+                        }
+                    }
                     updateTarget.add(param);
                 }
             }
@@ -673,7 +690,7 @@ public class VirtualCarDevice extends DeviceConnector {
                                     break;
 
                                 case "hornStatusSound":
-                                    step.hornStatusSound(map.get(param).toString() == "0" ? false : true);
+                                    step.hornStatusSound(map.get(param).toString().equals("0") ? false : true);
                                     break;
 
                                 case "acBlowerMode":
@@ -705,7 +722,7 @@ public class VirtualCarDevice extends DeviceConnector {
                                     break;
 
                                 case "airRecirculationStatusOperation":
-                                    step.airRecirculationStatusOperation(map.get(param).toString() == "0" ? false : true);
+                                    step.airRecirculationStatusOperation(map.get(param).toString().equals("0") ? false : true);
                                     break;
 
                                 case "acDriverSettingTemp":
@@ -721,7 +738,7 @@ public class VirtualCarDevice extends DeviceConnector {
                                     break;
 
                                 case "defoggerFrontStatusOperation":
-                                    step.defoggerFrontStatusOperation(map.get(param).toString() == "0" ? false : true);
+                                    step.defoggerFrontStatusOperation(map.get(param).toString().equals("0") ? false : true);
                                     break;
 
                                 case "transmissionGearPosition":
@@ -749,79 +766,79 @@ public class VirtualCarDevice extends DeviceConnector {
                                     break;
 
                                 case "customMusicStatus":
-                                    step.customMusicStatus(map.get(param).toString() == "0" ? false : true);
+                                    step.customMusicStatus(map.get(param).toString().equals("0") ? false : true);
                                     break;
 
                                 case "doorStatusOpen":
-                                    String[] doorStatusOpenTargets = map.get("doorStatusOpen.target").toString().split(",",0);
+                                    String[] doorStatusOpenTargets = map.get("doorStatus").toString().split(",",0);
                                     for(String target:doorStatusOpenTargets){
                                         switch (target){
                                             case "rightFront":
-                                                step.doorRightFrontStatusOpen(map.get(param).toString() == "0" ? false : true);
+                                                step.doorRightFrontStatusOpen(map.get("doorStatus.flag").toString().equals("1") ? false : true);
                                                 break;
                                             case "leftFront":
-                                                step.doorLeftFrontStatusOpen(map.get(param).toString() == "0" ? false : true);
+                                                step.doorLeftFrontStatusOpen(map.get("doorStatus.flag").toString().equals("1") ? false : true);
                                                 break;
                                             case "rightRear":
-                                                step.doorRightRearStatusOpen(map.get(param).toString() == "0" ? false : true);
+                                                step.doorRightRearStatusOpen(map.get("doorStatus.flag").toString().equals("1") ? false : true);
                                                 break;
                                             case "leftRear":
-                                                step.doorLeftRearStatusOpen(map.get(param).toString() == "0" ? false : true);
+                                                step.doorLeftRearStatusOpen(map.get("doorStatus.flag").toString().equals("1") ? false : true);
                                                 break;
                                             case "trunk":
-                                                step.doorTrunkStatusOpen(map.get(param).toString() == "0" ? false : true);
+                                                step.doorTrunkStatusOpen(map.get("doorStatus.flag").toString().equals("1") ? false : true);
                                         }
                                     }
                                     break;
 
                                 case "doorStatusLock":
-                                    String[] doorStatusLockTargets = map.get("doorStatusLock.target").toString().split(",",0);
+                                    String[] doorStatusLockTargets = map.get("doorStatus").toString().split(",",0);
                                     for(String target:doorStatusLockTargets){
                                         switch (target){
                                             case "rightFront":
-                                                step.doorRightFrontStatusLock(map.get(param).toString() == "0" ? false : true);
+                                                step.doorRightFrontStatusLock(map.get("doorStatus.flag").toString().equals("3") ? false : true);
                                                 break;
                                             case "leftFront":
-                                                step.doorLeftFrontStatusLock(map.get(param).toString() == "0" ? false : true);
+                                                step.doorLeftFrontStatusLock(map.get("doorStatus.flag").toString().equals("3") ? false : true);
                                                 break;
                                             case "rightRear":
-                                                step.doorRightRearStatusLock(map.get(param).toString() == "0" ? false : true);
+                                                step.doorRightRearStatusLock(map.get("doorStatus.flag").toString().equals("3") ? false : true);
                                                 break;
                                             case "leftRear":
-                                                step.doorLeftRearStatusLock(map.get(param).toString() == "0" ? false : true);
+                                                step.doorLeftRearStatusLock(map.get("doorStatus.flag").toString().equals("3") ? false : true);
                                                 break;
                                             case "trunk":
-                                                step.doorTrunkStatusLock(map.get(param).toString() == "0" ? false : true);
+                                                step.doorTrunkStatusLock(map.get("doorStatus.flag").toString().equals("3") ? false : true);
                                         }
                                     }
                                     break;
 
                                 case "doorRightFrontStatusLock":
-                                    step.doorRightFrontStatusLock(map.get(param).toString() == "0" ? false : true);
+                                    step.doorRightFrontStatusLock(map.get(param).toString().equals("0") ? false : true);
                                     break;
 
                                 case "doorLeftFrontStatusLock":
-                                    step.doorLeftFrontStatusLock(map.get(param).toString() == "0" ? false : true);
+                                    step.doorLeftFrontStatusLock(map.get(param).toString().equals("0") ? false : true);
                                     break;
 
                                 case "doorRightRearStatusLock":
-                                    step.doorRightRearStatusLock(map.get(param).toString() == "0" ? false : true);
+                                    step.doorRightRearStatusLock(map.get(param).toString().equals("0") ? false : true);
                                     break;
 
                                 case "doorLeftRearStatusLock":
-                                    step.doorLeftRearStatusLock(map.get(param).toString() == "0" ? false : true);
+                                    step.doorLeftRearStatusLock(map.get(param).toString().equals("0") ? false : true);
                                     break;
 
                                 case "doorTrunkStatusLock":
-                                    step.doorTrunkStatusLock(map.get(param).toString() == "0" ? false : true);
+                                    step.doorTrunkStatusLock(map.get(param).toString().equals("0") ? false : true);
                                     break;
 
                                 case "hazardLampOperationState":
-                                    step.hazardLampOperationState(map.get(param).toString() == "0" ? false : true);
+                                    step.hazardLampOperationState(map.get(param).toString().equals("0") ? false : true);
                                     break;
 
                                 case "lightHighBeamStatusLighting":
-                                    step.lightHighBeamStatusLighting(map.get(param).toString() == "0" ? false : true);
+                                    step.lightHighBeamStatusLighting(map.get(param).toString().equals("0") ? false : true);
                                     break;
 
                                 case "lightHeadStatusLighting":
@@ -853,19 +870,19 @@ public class VirtualCarDevice extends DeviceConnector {
                                     break;
 
                                 case "customSeatRightFrontOccupantType":
-                                    step.customSeatRightFrontOccupantType(map.get(param).toString() == "0" ? false : true);
+                                    step.customSeatRightFrontOccupantType(map.get(param).toString().equals("0") ? false : true);
                                     break;
 
                                 case "customSeatRightRearOccupantType":
-                                    step.customSeatRightRearOccupantType(map.get(param).toString() == "0" ? false : true);
+                                    step.customSeatRightRearOccupantType(map.get(param).toString().equals("0") ? false : true);
                                     break;
 
                                 case "customSeatLeftFrontOccupantType":
-                                    step.customSeatLeftFrontOccupantType(map.get(param).toString() == "0" ? false : true);
+                                    step.customSeatLeftFrontOccupantType(map.get(param).toString().equals("0") ? false : true);
                                     break;
 
                                 case "customSeatLeftRearOccupantType":
-                                    step.customSeatLeftRearOccupantType(map.get(param).toString() == "0" ? false : true);
+                                    step.customSeatLeftRearOccupantType(map.get(param).toString().equals("0") ? false : true);
                                     break;
 
                                 case "fuelRemainingPercent":

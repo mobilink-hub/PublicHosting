@@ -30,7 +30,7 @@ public class VirtualCarIms extends IfLinkConnector {
     /**
      * ログ出力切替フラグ
      */
-    private boolean bDBG = false;
+    private boolean bDBG = true;
 
     /**
      * コンストラクタ.
