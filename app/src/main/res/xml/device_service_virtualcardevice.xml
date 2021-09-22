@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <iflink>
     <language name="jp">
-        <device name="Virtual Car v0.9.1" icon="logo.png" dataitem="mobilink" key="devicename" value="jp.co.denso.iflink.virtualcarims:virtualcarDevice:2" category="mobilink">
+        <device name="Virtual Car v0.9.1" icon="logo.png" dataitem="mobilink" key="devicename" value="jp.co.denso.iflink.virtualcar:virtualcarDevice:1" category="mobilink">
             <if>
                 <condition name="エアコン/風量がしきい値を上回ったら" icon="logo.png" key="dataname" value="acBlowerLevel" interface="Android">
                     <property name="判断" datatype="int" type="hidden" key="compare" value="ge"/>
@@ -173,4 +173,5 @@
             </then>
         </device>
     </language>
+    
 </iflink>

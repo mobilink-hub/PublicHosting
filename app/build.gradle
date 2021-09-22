@@ -9,10 +9,10 @@ android {
         targetCompatibility 1.8
     }
     defaultConfig {
-        applicationId "jp.co.denso.iflink.virtualcarims"
+        applicationId "jp.co.denso.iflink.virtualcar"
         minSdkVersion 23
         targetSdkVersion 28
-        versionCode 2
+        versionCode 1
         versionName "1.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
