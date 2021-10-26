@@ -51,4 +51,6 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:com.springsource.com.fasterxml.jackson.core.jackson-core:2.0.2'
     implementation 'com.fasterxml.jackson.core:com.springsource.com.fasterxml.jackson.core.jackson-databind:2.0.2'
     implementation 'com.fasterxml.jackson.core:com.springsource.com.fasterxml.jackson.core.jackson-annotations:2.0.2'
+    implementation 'com.google.okhttp:okhttp:20120626'
+    implementation 'com.squareup.okhttp:okhttp:2.7.5'
 }

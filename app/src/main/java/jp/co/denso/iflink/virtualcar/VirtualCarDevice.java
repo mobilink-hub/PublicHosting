@@ -1,9 +1,12 @@
 package jp.co.denso.iflink.virtualcar;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.content.res.XmlResourceParser;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Looper;
 import android.os.Handler;
@@ -14,12 +17,18 @@ import androidx.annotation.RequiresApi;
 
 import android.util.Log;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import java.util.HashMap;
 
+import android.widget.Switch;
 import android.widget.Toast;
 
 import com.amplifyframework.AmplifyException;
@@ -27,7 +36,6 @@ import com.amplifyframework.api.ApiOperation;
 import com.amplifyframework.api.aws.AWSApiPlugin;
 import com.amplifyframework.api.graphql.model.ModelQuery;
 import com.amplifyframework.api.graphql.model.ModelSubscription;
-import com.amplifyframework.api.graphql.model.ModelMutation;
 import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin;
 import com.amplifyframework.core.Amplify;
 import com.amplifyframework.core.AmplifyConfiguration;
@@ -41,6 +49,11 @@ import jp.co.toshiba.iflink.imsif.DeviceConnector;
 import jp.co.toshiba.iflink.imsif.IfLinkSettings;
 import jp.co.toshiba.iflink.imsif.IfLinkAlertException;
 import jp.co.toshiba.iflink.ui.PermissionActivity;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class VirtualCarDevice extends DeviceConnector {
     /**
@@ -176,6 +189,20 @@ public class VirtualCarDevice extends DeviceConnector {
     };
     private ApiOperation subscribe;
     private boolean isAmplifyReady = false;
+
+    /**
+    apiのURL、仮のmobilinkid、accesstoken
+    */
+    private OkHttpClient client = new OkHttpClient();
+    private String MOBILINK_API_ENDPOINT_URL = "https://llysmz9l26.execute-api.ap-northeast-1.amazonaws.com/staging/v0.1/vehicles/";
+    private String MOBILINK_AUTH_URL = "https://w8c9j34ijl.execute-api.ap-northeast-1.amazonaws.com/mobilink_auth_test/dynamodbctl";
+    private String mobilinkId; //= "LeOLJrcMp68MHt5n";
+    private String x_mobilink_access_token; // = "XVBqnpLwQMkVjKGa";
+    private String filename = "IDtoken.txt";
+    private File file;
+    private String[] ID_token = new String[2];  //mobilinkid,x-mobilink-access-token
+    private boolean file_exi = false;
+
     /**
      * コンストラクタ.
      *
@@ -674,256 +701,153 @@ public class VirtualCarDevice extends DeviceConnector {
                 }
             }
         }
-        Amplify.API.query(ModelQuery.get(Vehicle.class,username+":"+vehicleId),
-                response -> {
-                    Log.i(TAG, ((Vehicle) response.getData()).toString());
-                    Vehicle.BuildStep step = response.getData().copyOfBuilder().id(username+":"+vehicleId);
-                    for(String param:updateTarget){
-                        try {
-                            switch (param) {
-                                case "dummy":
-                                    step.dummy(true);
-                                    break;
 
-                                case "vehicleSpeed":
-                                    step.vehicleSpeed(Float.parseFloat(map.get(param).toString()));
-                                    break;
 
-                                case "hornStatusSound":
-                                    step.hornStatusSound(map.get(param).toString().equals("0") ? false : true);
+        String json;
+        List<String> name = new ArrayList<String>();
+        List<String> command = new ArrayList<String>();
+        List<String> args = new ArrayList<String>();
+        for (String param: updateTarget) {
+            try {
+                switch (param) {
+                    case "vehicleSpeed":
+                    case "brakePressure":
+                    case "wiperFrontControlSetting":
+                    case "ignitionStatus":
+                    case "steeringWheelAngle":
+                    case "transmissionGearPosition":
+                    case "lightHeadStatusLighting":
+                    case "turnSignalStatusOperation":
+                        name.add("cockpit");
+                        command.add(param);
+                        args.add((String) map.get(param));
+                        break;
+                    case "hornStatusSound":
+                    case "hazardLampOperationState":
+                        name.add("cockpit");
+                        command.add(param);
+                        args.add(map.get(param).toString().equals("0") ? "false" : "true");
+                        break;
+                    case "acBlowerMode":
+                    case "acceleratorPedalOpening":
+                    case "acBlowerLevel":
+                    case "acDriverSettingTemp":
+                    case "insideTemp":
+                    case "outsideTemp":
+                    case "heaterStatusOperation":
+                    case "customAmRadioChannel":
+                    case "customFmRadioChannel":
+                    case "customAudioVol":
+                    case "customAudioMode":
+                        name.add("dashboard");
+                        command.add(param);
+                        args.add((String) map.get(param));
+                        break;
+                    case "airRecirculationStatusOperation":
+                    case "defoggerFrontStatusOperation":
+                    case "customMusicStatus":
+                        name.add("dashboard");
+                        command.add(param);
+                        args.add(map.get(param).toString().equals("0") ? "false" : "true");
+                        break;
+                    case "doorStatusOpen":
+                        name.add("door&light");
+                        String[] doorStatusOpenTargets = map.get("doorStatus").toString().split(",", 0);
+                        for (String target : doorStatusOpenTargets) {
+                            switch (target) {
+                                case "rightFront":
+                                    command.add("doorRightFrontStatusOpen");
+                                    args.add(map.get("doorStatus.flag").toString().equals("1") ? "false" : "true");
                                     break;
-
-                                case "acBlowerMode":
-                                    step.acBlowerMode(Integer.parseInt(map.get(param).toString()));
+                                case "leftFront":
+                                    command.add("doorLeftFrontStatusOpen");
+                                    args.add(map.get("doorStatus.flag").toString().equals("1") ? "false" : "true");
                                     break;
-
-                                case "brakePressure":
-                                    step.brakePressure(Float.parseFloat(map.get(param).toString()));
+                                case "rightRear":
+                                    command.add("doorRightRearStatusOpen");
+                                    args.add(map.get("doorStatus.flag").toString().equals("1") ? "false" : "true");
                                     break;
-
-                                case "acceleratorPedalOpening":
-                                    step.acceleratorPedalOpening(Float.parseFloat(map.get(param).toString()));
+                                case "leftRear":
+                                    command.add("doorLeftRearStatusOpen");
+                                    args.add(map.get("doorStatus.flag").toString().equals("1") ? "false" : "true");
                                     break;
-
-                                case "wiperFrontControlSetting":
-                                    step.wiperFrontControlSetting(Integer.parseInt(map.get(param).toString()));
-                                    break;
-
-                                case "ignitionStatus":
-                                    step.ignitionStatus(Integer.parseInt(map.get(param).toString()));
-                                    break;
-
-                                case "acBlowerLevel":
-                                    step.acBlowerLevel(Integer.parseInt(map.get(param).toString()));
-                                    break;
-
-                                case "steeringWheelAngle":
-                                    step.steeringWheelAngle(Float.parseFloat(map.get(param).toString()));
-                                    break;
-
-                                case "airRecirculationStatusOperation":
-                                    step.airRecirculationStatusOperation(map.get(param).toString().equals("0") ? false : true);
-                                    break;
-
-                                case "acDriverSettingTemp":
-                                    step.acDriverSettingTemp(Float.parseFloat(map.get(param).toString()));
-                                    break;
-
-                                case "insideTemp":
-                                    step.insideTemp(Float.parseFloat(map.get(param).toString()));
-                                    break;
-
-                                case "outsideTemp":
-                                    step.outsideTemp(Float.parseFloat(map.get(param).toString()));
-                                    break;
-
-                                case "defoggerFrontStatusOperation":
-                                    step.defoggerFrontStatusOperation(map.get(param).toString().equals("0") ? false : true);
-                                    break;
-
-                                case "transmissionGearPosition":
-                                    step.transmissionGearPosition(Integer.parseInt(map.get(param).toString()));
-                                    break;
-
-                                case "heaterStatusOperation":
-                                    step.heaterStatusOperation(Integer.parseInt(map.get(param).toString()));
-                                    break;
-
-                                case "customAmRadioChannel":
-                                    step.customAmRadioChannel(Float.parseFloat(map.get(param).toString()));
-                                    break;
-
-                                case "customFmRadioChannel":
-                                    step.customFmRadioChannel(Float.parseFloat(map.get(param).toString()));
-                                    break;
-
-                                case "customAudioVol":
-                                    step.customAudioVol(Integer.parseInt(map.get(param).toString()));
-                                    break;
-
-                                case "customAudioMode":
-                                    step.customAudioMode(Integer.parseInt(map.get(param).toString()));
-                                    break;
-
-                                case "customMusicStatus":
-                                    step.customMusicStatus(map.get(param).toString().equals("0") ? false : true);
-                                    break;
-
-                                case "doorStatusOpen":
-                                    String[] doorStatusOpenTargets = map.get("doorStatus").toString().split(",",0);
-                                    for(String target:doorStatusOpenTargets){
-                                        switch (target){
-                                            case "rightFront":
-                                                step.doorRightFrontStatusOpen(map.get("doorStatus.flag").toString().equals("1") ? false : true);
-                                                break;
-                                            case "leftFront":
-                                                step.doorLeftFrontStatusOpen(map.get("doorStatus.flag").toString().equals("1") ? false : true);
-                                                break;
-                                            case "rightRear":
-                                                step.doorRightRearStatusOpen(map.get("doorStatus.flag").toString().equals("1") ? false : true);
-                                                break;
-                                            case "leftRear":
-                                                step.doorLeftRearStatusOpen(map.get("doorStatus.flag").toString().equals("1") ? false : true);
-                                                break;
-                                            case "trunk":
-                                                step.doorTrunkStatusOpen(map.get("doorStatus.flag").toString().equals("1") ? false : true);
-                                        }
-                                    }
-                                    break;
-
-                                case "doorStatusLock":
-                                    String[] doorStatusLockTargets = map.get("doorStatus").toString().split(",",0);
-                                    for(String target:doorStatusLockTargets){
-                                        switch (target){
-                                            case "rightFront":
-                                                step.doorRightFrontStatusLock(map.get("doorStatus.flag").toString().equals("3") ? false : true);
-                                                break;
-                                            case "leftFront":
-                                                step.doorLeftFrontStatusLock(map.get("doorStatus.flag").toString().equals("3") ? false : true);
-                                                break;
-                                            case "rightRear":
-                                                step.doorRightRearStatusLock(map.get("doorStatus.flag").toString().equals("3") ? false : true);
-                                                break;
-                                            case "leftRear":
-                                                step.doorLeftRearStatusLock(map.get("doorStatus.flag").toString().equals("3") ? false : true);
-                                                break;
-                                            case "trunk":
-                                                step.doorTrunkStatusLock(map.get("doorStatus.flag").toString().equals("3") ? false : true);
-                                        }
-                                    }
-                                    break;
-
-                                case "doorRightFrontStatusLock":
-                                    step.doorRightFrontStatusLock(map.get(param).toString().equals("0") ? false : true);
-                                    break;
-
-                                case "doorLeftFrontStatusLock":
-                                    step.doorLeftFrontStatusLock(map.get(param).toString().equals("0") ? false : true);
-                                    break;
-
-                                case "doorRightRearStatusLock":
-                                    step.doorRightRearStatusLock(map.get(param).toString().equals("0") ? false : true);
-                                    break;
-
-                                case "doorLeftRearStatusLock":
-                                    step.doorLeftRearStatusLock(map.get(param).toString().equals("0") ? false : true);
-                                    break;
-
-                                case "doorTrunkStatusLock":
-                                    step.doorTrunkStatusLock(map.get(param).toString().equals("0") ? false : true);
-                                    break;
-
-                                case "hazardLampOperationState":
-                                    step.hazardLampOperationState(map.get(param).toString().equals("0") ? false : true);
-                                    break;
-
-                                case "lightHighBeamStatusLighting":
-                                    step.lightHighBeamStatusLighting(map.get(param).toString().equals("0") ? false : true);
-                                    break;
-
-                                case "lightHeadStatusLighting":
-                                    step.lightHeadStatusLighting(Integer.parseInt(map.get(param).toString()));
-                                    break;
-
-                                case "turnSignalStatusOperation":
-                                    step.turnSignalStatusOperation(Integer.parseInt(map.get(param).toString()));
-                                    break;
-
-                                case "lampBreakStatusLighting":
-                                    step.lampBreakStatusLighting(Integer.parseInt(map.get(param).toString()));
-                                    break;
-
-                                case "naviDestMeasuringLat":
-                                    step.naviDestMeasuringLat(Float.parseFloat(map.get(param).toString()));
-                                    break;
-
-                                case "naviDestMeasuringLon":
-                                    step.naviDestMeasuringLon(Float.parseFloat(map.get(param).toString()));
-                                    break;
-
-                                case "gpsStatusMeasuringLon":
-                                    step.gpsStatusMeasuringLon(Float.parseFloat(map.get(param).toString()));
-                                    break;
-
-                                case "gpsStatusMeasuringLat":
-                                    step.gpsStatusMeasuringLat(Float.parseFloat(map.get(param).toString()));
-                                    break;
-
-                                case "customSeatRightFrontOccupantType":
-                                    step.customSeatRightFrontOccupantType(map.get(param).toString().equals("0") ? false : true);
-                                    break;
-
-                                case "customSeatRightRearOccupantType":
-                                    step.customSeatRightRearOccupantType(map.get(param).toString().equals("0") ? false : true);
-                                    break;
-
-                                case "customSeatLeftFrontOccupantType":
-                                    step.customSeatLeftFrontOccupantType(map.get(param).toString().equals("0") ? false : true);
-                                    break;
-
-                                case "customSeatLeftRearOccupantType":
-                                    step.customSeatLeftRearOccupantType(map.get(param).toString().equals("0") ? false : true);
-                                    break;
-
-                                case "fuelRemainingPercent":
-                                    step.fuelRemainingPercent(Integer.parseInt(map.get(param).toString()));
-                                    break;
-
-                                case "customSensorRightFrontLevel":
-                                    step.customSensorRightFrontLevel(Integer.parseInt(map.get(param).toString()));
-                                    break;
-
-                                case "customSensorRightRearLevel":
-                                    step.customSensorRightRearLevel(Integer.parseInt(map.get(param).toString()));
-                                    break;
-
-                                case "customSensorLeftFrontLevel":
-                                    step.customSensorLeftFrontLevel(Integer.parseInt(map.get(param).toString()));
-                                    break;
-
-                                case "customSensorLeftRearLevel":
-                                    step.customSensorLeftRearLevel(Integer.parseInt(map.get(param).toString()));
-                                    break;
-
-                                default:
-                                    showToast("unknown Buildstep");
+                                case "trunk":
+                                    command.add("doorTrunkStatusOpen");
+                                    args.add(map.get("doorStatus.flag").toString().equals("1") ? "false" : "true");
                             }
-                        }catch (NumberFormatException e){
-                            showToast("Formatting Exception:"+ param);
                         }
-                    }
-                    Vehicle v = step.build();
-                    Amplify.API.mutate(
-                            ModelMutation.update(v),
-                            res -> {
-                                Log.d(TAG, "Updated: " + res.getData().toString());
-                            },
-                            err -> Log.d(TAG, "Update failed:", err)
-                    );
-                },
-                error -> Log.e("MyAmplifyApp", error.toString(), error)
-        );
+                        break;
+                    case "doorStatusLock":
+                        name.add("door&light");
+                        String[] doorStatusLockTargets = map.get("doorStatus").toString().split(",", 0);
+                        for (String target : doorStatusLockTargets) {
+                            switch (target) {
+                                case "rightFront":
+                                    command.add("doorRightFrontStatusLock");
+                                    args.add(map.get("doorStatus.flag").toString().equals("3") ? "false" : "true");
+                                    break;
+                                case "leftFront":
+                                    command.add("doorLeftFrontStatusLock");
+                                    args.add(map.get("doorStatus.flag").toString().equals("3") ? "false" : "true");
+                                    break;
+                                case "rightRear":
+                                    command.add("doorRightRearStatusLock");
+                                    args.add(map.get("doorStatus.flag").toString().equals("3") ? "false" : "true");
+                                    break;
+                                case "leftRear":
+                                    command.add("doorLeftRearStatusLock");
+                                    args.add(map.get("doorStatus.flag").toString().equals("3") ? "false" : "true");
+                                    break;
+                                case "trunk":
+                                    command.add("doorTrunkStatusLock");
+                                    args.add(map.get("doorStatus.flag").toString().equals("3") ? "false" : "true");
+                            }
+                        }
+                        break;
+                    case "customSensorRightFrontLevel":
+                    case "customSensorRightRearLevel":
+                    case "customSensorLeftFrontLevel":
+                    case "customSensorLeftRearLevel":
+                        name.add("sensor");
+                        command.add(param);
+                        args.add((String) map.get(param));
+                    default:
+                        showToast("unknown Buildstep");
+                }
+                /*未実装
+                case "lightHighBeamStatusLighting":
+                case "lampBreakStatusLighting":
+                case "naviDestMeasuringLat":
+                case "naviDestMeasuringLon":
+                case "gpsStatusMeasuringLon":
+                case "gpsStatusMeasuringLat":
+                 */
+            } catch (NumberFormatException e) {
+                showToast("Formatting Exception:" + param);
+            }
+        }
 
+        int cmdcnt = name.size();
+        if (cmdcnt > 0) {
+            json = "{\"items\":[";
+            for (int i = 0; i < cmdcnt; i++) {
+                json = json + "{ \"name\":\"" + name.get(i) + "\",\"command\":\"" + command.get(i) + "\",\"args\":[\"" + args.get(i) + "\"] },";
+            }
+            json = json.substring(0, json.length()-1);
+            json = json + "]}";
+            RequestBody reqBody = RequestBody.create(MediaType.parse("application/json"), json);
+            Request req = new Request.Builder()
+                    .url(MOBILINK_API_ENDPOINT_URL+ID_token[0])
+                    .addHeader("x-mobilink-access-token", ID_token[1])
+                    .post(reqBody)
+                    .build();
+            try {
+                Log.d("post", json);
+                client.newCall(req).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         return true;
     }
@@ -1002,7 +926,7 @@ public class VirtualCarDevice extends DeviceConnector {
                 result -> {
                     String text = result.isSignInComplete() ? "Sign in succeeded with '" + username + "'" : "Sign in not complete with '" + username + "'";
                     Log.i(TAG, text);
-                    showToast(text);
+                    //showToast(text);
                     if (subscribe != null) subscribe.cancel();
                     taskSubscribe();
                 },
@@ -1012,6 +936,170 @@ public class VirtualCarDevice extends DeviceConnector {
                     showToast("Sign in failed with '" + username + "'" + " on " + vehicleId);
                 }
         );
+    }
+
+
+    //mobilinkidが発行済みかチェック
+    public class Authid extends AsyncTask<Void, Void, String> {
+
+        @Override
+        protected String doInBackground(Void... params) {
+            String json = "{ \"OperationType\":\"SCAN_MPF\",\"Keys\": {\"id\":\"" + username + ":" + vehicleId + "\",\"password\":\"" + password + "\"}}";
+            RequestBody reqBody = RequestBody.create(MediaType.parse("application/json"), json);
+            Request req = new Request.Builder()
+                    .url(MOBILINK_AUTH_URL)
+                    .post(reqBody)
+                    .build();
+            try {
+                Log.d(TAG, "authid connection");
+                Response response = client.newCall(req).execute();
+                return response.body().string();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return "Connection Error";
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            Issuetoken issuetokentask;
+            switch (result) {
+                case "\"Password is incorrect\"":
+                    Log.d(TAG, result);
+                    showToast("Password is incorrect. config profile at 環境設定 > VirtualCar IMS 設定メニュー");
+                    break;
+                case "\"mpf_none\"":
+                    Log.d(TAG, result);
+                    showToast("Vehicle is None. config profile or issue mobilinkId");
+                    break;
+                case "Connection Error":
+                    showToast("外部通信エラー");
+                    break;
+                default:
+                    Log.d(TAG, result);
+                    // 認証情報保持
+                    if (file_exi) {
+                            // 適切なID保持
+                        if (ID_token[0].equals(result.replace("\"", ""))) {
+                            Authtoken authtokentask = new Authtoken();
+                            authtokentask.execute();
+                            // 保持IDと入力IDが異なる、token発行依頼
+                        } else {
+                            ID_token[0] = result.replace("\"", "");
+                            issuetokentask = new Issuetoken();
+                            issuetokentask.execute();
+                        }
+                    } else {  //認証情報なし（インストール後初ログイン）
+                        ID_token[0] = result.replace("\"", "");
+                        issuetokentask = new Issuetoken();
+                        issuetokentask.execute();
+                    }
+                    break;
+            }
+
+        }
+    }
+
+    //accesstokenが有効かチェック
+    public class Authtoken extends AsyncTask<Void, Void, String> {
+        @Override
+        protected String doInBackground(Void... params) {
+            String json = "{ \"OperationType\":\"AUTH\",\"Keys\":{\"x_mobilink_access_token\":\"" + ID_token[1] + "\"}}";
+            RequestBody reqBody = RequestBody.create(MediaType.parse("application/json"), json);
+            Request req = new Request.Builder()
+                    .url(MOBILINK_AUTH_URL)
+                    .post(reqBody)
+                    .build();
+            try {
+                Log.d(TAG, "authtoken connection");
+                Response response = client.newCall(req).execute();
+                return response.body().string();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return "Connection Error";
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            if (result.equals("Connection Error")) {
+                showToast("外部通信エラー");
+            } else {
+                Log.d("authtokentask", result.replace("\"", ""));
+                String result2 = result.replace("\"", "");
+                switch (result2) {
+                    case "ok":
+                        Log.d(TAG, "token ok");
+                        showToast("Token authentication completed");
+                        login(username,password);
+                        break;
+                    case "none":
+                        Log.d(TAG, "token none");
+                        Issuetoken issue = new Issuetoken();
+                        issue.execute();
+                        break;
+                    default:
+                        if (result2.length() == 16) {
+                            ID_token[1] = result2;
+                            try (FileWriter writer = new FileWriter(file)) {
+                                writer.write(ID_token[0] + "," + result2);
+                                showToast("Token authentication completed");
+                                login(username,password);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            //多分保持してるtokenがエラ〜メッセージ
+                            showToast("authtoken error");
+                        }
+                }
+            }
+        }
+
+    }
+
+    //accesstoken新規発行
+    public class Issuetoken extends AsyncTask<Void, Void, String> {
+        @Override
+        protected String doInBackground(Void... params) {
+            String json = "{ \"OperationType\":\"PUT\",\"Keys\": {\"mobilinkid\":\"" + ID_token[0] + "\"}}";
+            RequestBody reqBody = RequestBody.create(MediaType.parse("application/json"), json);
+            Request req = new Request.Builder()
+                    .url(MOBILINK_AUTH_URL)
+                    .post(reqBody)
+                    .build();
+            try {
+                Log.d(TAG, "issuetoken connection");
+                Response response = client.newCall(req).execute();
+                return response.body().string();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return "Connection Error";
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            if (result.equals("Connection Error")) {
+                showToast("外部通信エラー");
+            } else {
+                Log.d("issuetask", result);
+                ID_token[1] = result.replace("\"", "");
+                if (ID_token[1].length() == 16) {
+                    try (FileWriter writer = new FileWriter(file)) {
+                        writer.write(ID_token[0] + "," + ID_token[1]);
+                        showToast("Token issuance completed");
+                        login(username,password);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    showToast("トークン発行エラー");
+                }
+
+            }
+        }
+
     }
 
     @Override
@@ -1025,11 +1113,31 @@ public class VirtualCarDevice extends DeviceConnector {
         username = settings.getStringValue(usernameKey, "");
         password = settings.getStringValue(passwordKey, "");
         vehicleId = settings.getStringValue(vehicleIdKey,"");
+        Context context = mIms.getApplicationContext();
+        file = new File(context.getFilesDir(), filename);
+
+        String line = null;
+
         if(isAmplifyReady){
             if(username == "" || password == "" || vehicleId == ""){
                 showToast("config profile at 環境設定 > VirtualCar IMS 設定メニュー");
             }
-            else login(username,password);
+            //else login(username,password);
+            try(BufferedReader br = new BufferedReader(new FileReader(file))){
+                line = br.readLine();
+                ID_token = line.split(",");
+                Log.d("ID_token", ID_token[0] + ":" + ID_token[1]);
+                file_exi = true;
+            }
+            catch (IOException e) {
+                Log.d(TAG, "File None");
+                ID_token[0] = "hoge";
+                ID_token[1] = "hoge";
+                e.printStackTrace();
+            }
+
+            Authid authidtask = new Authid();
+            authidtask.execute();
         }
         if(username.equals("") || password.equals("") || vehicleId.equals("")){
             showToast("config profile at 環境設定 > VirtualCar IMS 設定メニュー");
